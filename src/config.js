@@ -1,4 +1,4 @@
-require ('dotenv').config();
+
 const { parse } = require('url');
 
 // Obtener la URL de la base de datos desde variables de entorno
