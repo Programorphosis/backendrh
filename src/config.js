@@ -4,17 +4,13 @@ const { parse } = require('url');
 // Obtener la URL de la base de datos desde variables de entorno
 const DB_URL = process.env.DB_RAILWAY;
 
-if (!DB_URL) {
-  throw new Error('DATABASE_URL no está definida en las variables de entorno.');
-}
+
 
 // Parsear la URL
 const parsedUrl = parse(DB_URL);
 const [user, password] = parsedUrl.auth.split(':');
 const database = parsedUrl.pathname.slice(1);
 
-console.log('DB_URL:', DB_URL);
-console.log('Parsed URL:', parsedUrl);
 
 module.exports = {
 
