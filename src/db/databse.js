@@ -4,9 +4,9 @@ const mysql = require("mysql2/promise");
 const dbConfig = require("../config");
 const awsConfig = require("../config");
 const { putObjectsS3, getObjectsS3, listObjectsS3, deleteObjectsS3 } = require("../aws/s3");
-const { CLIENT_RENEG_LIMIT } = require("tls");
 
-const pool = mysql.createPool(dbConfig.db);
+
+const pool = mysql.createPool(process.env.DB_REAILWAY);
 
 //_____________________________POST________________________________________
 
