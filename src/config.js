@@ -25,10 +25,7 @@ module.exports = {
       port: parsedUrl.port || 3306,
       waitForConnections: true,
       connectionLimit: 10, // Ajustar según carga esperada
-      queueLimit: 0,
-      ssl: process.env.NODE_ENV === 'production' 
-        ? { rejectUnauthorized: true } // Usar SSL en producción
-        : null,
+     
     },
     jwt: {
       secret: process.env.JET_SECRET || 'nota secreta' 
