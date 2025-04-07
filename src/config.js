@@ -2,7 +2,7 @@ require ('dotenv').config();
 import { parse } from 'url';
 
 // Obtener la URL de la base de datos desde variables de entorno
-const DB_URL = process.env.DATABASE_URL;
+const DB_URL = process.env.DB_RAILWAY;
 
 if (!DB_URL) {
   throw new Error('DATABASE_URL no está definida en las variables de entorno.');
