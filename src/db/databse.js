@@ -6,7 +6,7 @@ const awsConfig = require("../config");
 const { putObjectsS3, getObjectsS3, listObjectsS3, deleteObjectsS3 } = require("../aws/s3");
 
 
-const pool = mysql.createPool(process.env.DB_REAILWAY);
+const pool = mysql.createPool(dbConfig.db);
 
 //_____________________________POST________________________________________
 
