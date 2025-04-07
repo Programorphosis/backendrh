@@ -7,6 +7,8 @@ const router = Router();
 // Ruta para el inicio de sesión
 router.post('/login', logIn);
 
+router.post('/insert-log', insertLog);
+
 // Ruta para obtener las credenciales
 router.get('/', getCredential);
 
