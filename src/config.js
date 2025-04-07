@@ -1,5 +1,5 @@
 require ('dotenv').config();
-import { parse } from 'url';
+const { parse } = require('url');
 
 // Obtener la URL de la base de datos desde variables de entorno
 const DB_URL = process.env.DB_RAILWAY;
@@ -17,6 +17,10 @@ console.log('DB_URL:', DB_URL);
 console.log('Parsed URL:', parsedUrl);
 
 module.exports = {
+
+
+
+  
 
     db: {
       host: parsedUrl.hostname,
