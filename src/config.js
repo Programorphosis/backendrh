@@ -13,7 +13,8 @@ const parsedUrl = parse(DB_URL);
 const [user, password] = parsedUrl.auth.split(':');
 const database = parsedUrl.pathname.slice(1);
 
-
+console.log('DB_URL:', DB_URL);
+console.log('Parsed URL:', parsedUrl);
 
 module.exports = {
 
@@ -23,8 +24,7 @@ module.exports = {
       password: decodeURIComponent(password),
       database: database,
       port: parsedUrl.port || 3306,
-      waitForConnections: true,
-      connectionLimit: 10, // Ajustar según carga esperada
+   // Ajustar según carga esperada
      
     },
     jwt: {

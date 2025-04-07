@@ -20,7 +20,7 @@ const app = express();
 
 //settings
 
-app.set('port', process.env.PORT || 3333);
+app.set('port', process.env.PORT);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs'); 
 
@@ -39,6 +39,6 @@ app.use('/user', userRoute);
 app.use('/auth', authRoute); 
 
 
-app.listen(app.get('port'), () => {
+app.listen(app.get('port',), () => {
     console.log(`Server running on port`, app.get('port'));
 });
