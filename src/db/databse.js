@@ -370,12 +370,12 @@ const getHotels = async () => {
     l.lat, 
     l.lng, 
     (SELECT JSON_ARRAYAGG(JSON_OBJECT('id', s.id, 'name', s.name, 'category', s.category))
-     FROM hotelesappdb.services AS s
-     JOIN hotelesappdb.hotel_services AS hs ON hs.service_id = s.id
+     FROM railway.services AS s
+     JOIN railway.hotel_services AS hs ON hs.service_id = s.id
      WHERE hs.hotel_id = h.id
      GROUP BY hs.hotel_id) AS services, 
     (SELECT JSON_ARRAYAGG(JSON_OBJECT('url', ih.url, 'type', ih.type, 'originalname', ih.originalname))
-     FROM hotelesappdb.imagenes_hoteles AS ih
+     FROM railway.imagenes_hoteles AS ih
      WHERE ih.hotel_id = h.id) AS images, 
     (SELECT JSON_ARRAYAGG(
          JSON_OBJECT(
@@ -393,19 +393,19 @@ const getHotels = async () => {
              'discount', rms.discount
          )
      )
-     FROM hotelesappdb.rooms AS rms
-     JOIN hotelesappdb.room_types AS rt ON rms.type = rt.id
+     FROM railway.rooms AS rms
+     JOIN railway.room_types AS rt ON rms.type = rt.id
      WHERE rms.hotel_id = h.id) AS rooms, 
     COALESCE(AVG(r.calificacion), 0) AS avg_rating, 
     COUNT(r.id) AS total_ratings
 FROM 
-    hotelesappdb.hoteles AS h
+    railway.hoteles AS h
 LEFT JOIN 
-    hotelesappdb.users AS u ON h.id_user = u.id
+    railway.users AS u ON h.id_user = u.id
 LEFT JOIN 
-    hotelesappdb.locations AS l ON h.location_id = l.id
+    railway.locations AS l ON h.location_id = l.id
 LEFT JOIN 
-    hotelesappdb.ratings AS r ON h.id = r.hotel_id
+    railway.ratings AS r ON h.id = r.hotel_id
 GROUP BY 
     h.id;
 
@@ -440,12 +440,12 @@ const getHotel = async (id) => {
     l.lat, 
     l.lng, 
     (SELECT JSON_ARRAYAGG(JSON_OBJECT( 'id', s.id, 'name', s.name, 'category', s.category))
-         FROM hotelesappdb.services AS s
-         JOIN hotelesappdb.hotel_services AS hs ON hs.service_id = s.id
+         FROM railway.services AS s
+         JOIN railway.hotel_services AS hs ON hs.service_id = s.id
          WHERE hs.hotel_id = h.id
          GROUP BY hs.hotel_id) AS services, 
     (SELECT JSON_ARRAYAGG(JSON_OBJECT('url', ih.url, 'type', ih.type, 'originalname', ih.originalname)) 
-         FROM hotelesappdb.imagenes_hoteles AS ih
+         FROM railway.imagenes_hoteles AS ih
          WHERE ih.hotel_id = h.id) AS images, 
     (SELECT JSON_ARRAYAGG(
            JSON_OBJECT(
@@ -463,20 +463,20 @@ const getHotel = async (id) => {
              'discount', rms.discount
          )
         )
-        FROM hotelesappdb.rooms AS rms
-        JOIN hotelesappdb.room_types AS rt ON rms.type = rt.id
+        FROM railway.rooms AS rms
+        JOIN railway.room_types AS rt ON rms.type = rt.id
         WHERE rms.hotel_id = h.id
     ) AS rooms, 
     COALESCE(AVG(r.calificacion), 0) AS avg_rating, 
     COUNT(r.id) AS total_ratings
 FROM 
-    hotelesappdb.hoteles AS h
+    railway.hoteles AS h
 LEFT JOIN 
-    hotelesappdb.users AS u ON h.id_user = u.id
+    railway.users AS u ON h.id_user = u.id
 LEFT JOIN 
-    hotelesappdb.locations AS l ON h.location_id = l.id
+    railway.locations AS l ON h.location_id = l.id
 LEFT JOIN 
-    hotelesappdb.ratings AS r ON h.id = r.hotel_id
+    railway.ratings AS r ON h.id = r.hotel_id
 WHERE h.id = ?
 GROUP BY 
     h.id;
@@ -514,12 +514,12 @@ const getHotelByUser = async (userId) => {
     l.lat, 
     l.lng, 
     (SELECT JSON_ARRAYAGG(JSON_OBJECT('name', s.name)) 
-     FROM hotelesappdb.services AS s
-     JOIN hotelesappdb.hotel_services AS hs ON hs.service_id = s.id
+     FROM railway.services AS s
+     JOIN railway.hotel_services AS hs ON hs.service_id = s.id
      WHERE hs.hotel_id = h.id
      GROUP BY hs.hotel_id) AS services, 
     (SELECT JSON_ARRAYAGG(JSON_OBJECT('url', ih.url, 'type', ih.type, 'originalname', ih.originalname)) 
-     FROM hotelesappdb.imagenes_hoteles AS ih
+     FROM railway.imagenes_hoteles AS ih
      WHERE ih.hotel_id = h.id) AS images, 
     (SELECT JSON_ARRAYAGG(
          JSON_OBJECT(
@@ -534,19 +534,19 @@ const getHotelByUser = async (userId) => {
              'available', rms.available
          )
     )
-     FROM hotelesappdb.rooms AS rms
-     JOIN hotelesappdb.room_types AS rt ON rms.type = rt.id
+     FROM railway.rooms AS rms
+     JOIN railway.room_types AS rt ON rms.type = rt.id
      WHERE rms.hotel_id = h.id) AS rooms, 
     COALESCE(AVG(r.calificacion), 0) AS avg_rating, 
     COUNT(r.id) AS total_ratings
 FROM 
-    hotelesappdb.hoteles AS h
+    railway.hoteles AS h
 LEFT JOIN 
-    hotelesappdb.users AS u ON h.id_user = u.id
+    railway.users AS u ON h.id_user = u.id
 LEFT JOIN 
-    hotelesappdb.locations AS l ON h.location_id = l.id
+    railway.locations AS l ON h.location_id = l.id
 LEFT JOIN 
-    hotelesappdb.ratings AS r ON h.id = r.hotel_id
+    railway.ratings AS r ON h.id = r.hotel_id
 WHERE
     h.id_user = ?
 GROUP BY 
