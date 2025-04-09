@@ -1,5 +1,6 @@
 const awsConfig = require('../config');
 const { S3Client, GetObjectCommand, ListObjectsCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
+require('aws-sdk/lib/maintenance_mode_message').suppress = true;
 const { Upload } = require("@aws-sdk/lib-storage");
 
 // Configura AWS S3
@@ -20,7 +21,7 @@ const putObjectsS3 = async (bucket, key, body) => {
         Key: key,
         Body: body,
       },
-    });
+    }); 
 
     upload.on("httpUploadProgress" , (progress) => {
       console.log(progress);
@@ -37,7 +38,7 @@ const putObjectsS3 = async (bucket, key, body) => {
     throw err;
   }
 };
-
+ 
 const listObjectsS3 = async (bucket) => {
   try {
     const data = await s3.send(

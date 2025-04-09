@@ -350,75 +350,88 @@ const getUser = async (tabla, id) => {
   const [rows] = await pool.query(`SELECT * FROM ${tabla} WHERE id = ?;`, [id]);
   return rows;
 };
-const getHotels = async () => {
+const getHotels = async (page = 1, limit = 10) => {
   try {
-    const query =
-     `
-      SELECT 
-    h.*,  
-    u.name AS user_name, 
-    u.lastname AS user_lastname, 
-    u.email AS user_email, 
-    u.telefono AS user_telefono, 
-    l.directions, 
-    l.country, 
-    l.departamento, 
-    l.city, 
-    l.sector, 
-    l.barrio, 
-    l.indications, 
-    l.lat, 
-    l.lng, 
-    (SELECT JSON_ARRAYAGG(JSON_OBJECT('id', s.id, 'name', s.name, 'category', s.category))
-     FROM railway.services AS s
-     JOIN railway.hotel_services AS hs ON hs.service_id = s.id
-     WHERE hs.hotel_id = h.id
-     GROUP BY hs.hotel_id) AS services, 
-    (SELECT JSON_ARRAYAGG(JSON_OBJECT('url', ih.url, 'type', ih.type, 'originalname', ih.originalname))
-     FROM railway.imagenes_hoteles AS ih
-     WHERE ih.hotel_id = h.id) AS images, 
-    (SELECT JSON_ARRAYAGG(
-         JSON_OBJECT(
-             'room_type', JSON_OBJECT(
-                 'id', rt.id,
-                 'name', rt.name,
-                 'capacity', rt.capacity,
-                 'description', rt.room_description,
-                 'beds', rt.beds
-                 
-             ),
-             'price', rms.price,
-             'quantity', rms.quantity,
-             'available', rms.available,
-             'discount', rms.discount
-         )
-     )
-     FROM railway.rooms AS rms
-     JOIN railway.room_types AS rt ON rms.type = rt.id
-     WHERE rms.hotel_id = h.id) AS rooms, 
-    COALESCE(AVG(r.calificacion), 0) AS avg_rating, 
-    COUNT(r.id) AS total_ratings
-FROM 
-    railway.hoteles AS h
-LEFT JOIN 
-    railway.users AS u ON h.id_user = u.id
-LEFT JOIN 
-    railway.locations AS l ON h.location_id = l.id
-LEFT JOIN 
-    railway.ratings AS r ON h.id = r.hotel_id
-GROUP BY 
-    h.id;
+    const offset = (page - 1) * limit;
 
+    const query = `
+      SELECT 
+        h.*,  
+        u.name AS user_name, 
+        u.lastname AS user_lastname, 
+        u.email AS user_email, 
+        u.telefono AS user_telefono, 
+        l.directions, 
+        l.country, 
+        l.departamento, 
+        l.city, 
+        l.sector, 
+        l.barrio, 
+        l.indications, 
+        l.lat, 
+        l.lng, 
+        (
+          SELECT JSON_ARRAYAGG(
+            JSON_OBJECT('id', s.id, 'name', s.name, 'category', s.category)
+          )
+          FROM railway.services AS s
+          JOIN railway.hotel_services AS hs ON hs.service_id = s.id
+          WHERE hs.hotel_id = h.id
+        ) AS services, 
+        (
+          SELECT JSON_ARRAYAGG(
+            JSON_OBJECT('url', ih.url, 'type', ih.type, 'originalname', ih.originalname)
+          )
+          FROM railway.imagenes_hoteles AS ih
+          WHERE ih.hotel_id = h.id
+        ) AS images, 
+        (
+          SELECT JSON_ARRAYAGG(
+            JSON_OBJECT(
+              'room_type', JSON_OBJECT(
+                'id', rt.id,
+                'name', rt.name,
+                'capacity', rt.capacity,
+                'description', rt.room_description,
+                'beds', rt.beds
+              ),
+              'price', rms.price,
+              'quantity', rms.quantity,
+              'available', rms.available,
+              'discount', rms.discount
+            )
+          )
+          FROM railway.rooms AS rms
+          JOIN railway.room_types AS rt ON rms.type = rt.id
+          WHERE rms.hotel_id = h.id
+        ) AS rooms, 
+        COALESCE(AVG(r.calificacion), 0) AS avg_rating, 
+        COUNT(r.id) AS total_ratings
+      FROM railway.hoteles AS h
+      LEFT JOIN railway.users AS u ON h.id_user = u.id
+      LEFT JOIN railway.locations AS l ON h.location_id = l.id
+      LEFT JOIN railway.ratings AS r ON h.id = r.hotel_id
+      GROUP BY h.id
+      LIMIT ? OFFSET ?;
     `;
-    const [rows] = await pool.query(query);
-   
-  
-    return rows;
+
+    const countQuery = `SELECT COUNT(*) AS total FROM railway.hoteles;`;
+
+    const [hoteles] = await pool.query(query, [limit, offset]);
+    const [[{ total }]] = await pool.query(countQuery);
+
+    return {
+      data: hoteles,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    };
   } catch (error) {
     console.error("Error en getHotels:", error);
     throw error;
   }
 };
+
 
 
 const getHotel = async (id) => {

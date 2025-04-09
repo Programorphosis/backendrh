@@ -1,4 +1,5 @@
 
+const { CloudWatchLogs } = require("aws-sdk");
 const error = require("../../../middlewares/errors");
 const respuestas = require("../../../red/respuestas");
 const auth = require("../../auth");
@@ -345,12 +346,17 @@ module.exports = function (dbIn) {
   };
   const getAllHotels = async (req, res) => {
     try {
-      const hoteles = await db.getHotels();
-    
+      // Extraemos los parámetros de paginación del query string
+      const page = parseInt(req.query.page, 10) || 1;
+      const limit = parseInt(req.query.limit, 10) || 10;
 
+      console.log("page", page);
+      console.log("limit", limit);
+  
+      // Se espera que la función getHotels reciba page y limit y retorne un objeto con { data, total }
+      const { data: hoteles, total } = await db.getHotels(page, limit);
+  
       const data = hoteles.map((hotel) => {
-      
-
         // Crear objeto de ubicación
         const location = {
           directions: hotel.directions,
@@ -363,29 +369,27 @@ module.exports = function (dbIn) {
           lat: hotel.lat,
           lng: hotel.lng,
         };
-        //crear un objeto que calcule el precio mas alto, el precio mas bajo y el promedio de precios redondeado
+  
+        // Calcular precios (máximo, mínimo, promedio)
         const prices = hotel.rooms?.map((room) => room.price);
         const maxPrice = prices?.length > 0 ? Math.max(...prices) : 0;
         const minPrice = prices?.length > 0 ? Math.min(...prices) : 0;
-        const avgPrice = Math.round(prices?.reduce((a, b) => a + b, 0) / prices?.length);
-
-
+        const avgPrice = prices?.length > 0 ? Math.round(prices.reduce((a, b) => a + b, 0) / prices.length) : 0;
+  
+        // Calcular capacidad y habitaciones disponibles
         const capacity = hotel.rooms
           ?.map((room) => room.quantity)
           ?.reduce((a, b) => a + b, 0);
         const availableRooms = hotel.rooms
           ?.map((room) => room.available)
           ?.reduce((a, b) => a + b, 0);
-
+  
         // Excluir propiedades de ubicación del objeto principal
-        const {
-        
-          ...restOfHotel
-        } = hotel;
-
+        const { directions, country, departamento, city, sector, barrio, indications, lat, lng, ...restOfHotel } = hotel;
+  
         return {
           ...restOfHotel,
-          location: location,
+          location,
           availableRooms,
           capacity,
           maxPrice,
@@ -393,13 +397,18 @@ module.exports = function (dbIn) {
           avgPrice,
         };
       });
-
-      respuestas.sucess(req, res, data, 200);
+  
+      // Calculamos las páginas totales para enviar metadatos al frontend
+      const totalPages = Math.ceil(total / limit);
+  
+      // Enviar respuesta con paginación: datos, total de registros, página actual y total de páginas.
+      respuestas.sucess(req, res, { data, total, totalPages, page }, 200);
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Something went wrong", error });
     }
   };
+  
 
   const getHotels = async (req, res) => {
     try {
